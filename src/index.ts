@@ -13,8 +13,26 @@ const clipboardSuccessMessageFadeTimeSeconds = 1;
 clipboardSuccessMessage.style.opacity = '1';
 clipboardSuccessMessage.style.transition = `opacity ${clipboardSuccessMessageFadeTimeSeconds}s linear`;
 
+function normalizeJson(maybeJson: string) {
+  try {
+    return JSON.stringify(JSON.parse(maybeJson));
+  } catch {
+    return maybeJson;
+  }
+}
+
+function format(maybeJson: string) {
+  try {
+    return JSON.stringify(JSON.parse(maybeJson), null, 2);
+  } catch {
+    return maybeJson;
+  }
+}
+
 function refreshUrl() {
-  history.pushState(null, null, `#?schema=${encodeURIComponent(schemaTextArea.value)}&json=${encodeURIComponent(jsonTextArea.value)}`);
+  const schema = normalizeJson(schemaTextArea.value);
+  const json = normalizeJson(jsonTextArea.value);
+  history.pushState(null, null, `#?schema=${encodeURIComponent(schema)}&json=${encodeURIComponent(json)}`);
   linkInput.value = location.toString();
 }
 
@@ -55,6 +73,6 @@ getLinkButton.addEventListener('click', () => {
 });
 
 const search = new URL(window.location.hash.substr(1), location.toString()).searchParams;
-schemaTextArea.value = search.get('schema');
-jsonTextArea.value = search.get('json');
+schemaTextArea.value = format(search.get('schema'));
+jsonTextArea.value = format(search.get('json'));
 refreshUrl();
